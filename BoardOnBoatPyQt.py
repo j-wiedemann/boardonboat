@@ -110,7 +110,7 @@ class Dashboard(QObject):
         ports = serial.tools.list_ports.comports(include_links=False)
         if len(ports) > 0:
             for port in ports:
-                if 'ACM' in port:
+                if 'ACM' in str(port):
                     self.arduino = QtSerialPort.QSerialPort(
                         port.device,
                         baudRate=QtSerialPort.QSerialPort.Baud4800,
