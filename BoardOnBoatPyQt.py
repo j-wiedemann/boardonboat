@@ -110,16 +110,17 @@ class Dashboard(QObject):
         ports = serial.tools.list_ports.comports(include_links=False)
         if len(ports) > 0:
             for port in ports:
-                self.arduino = QtSerialPort.QSerialPort(
-                    port.device,
-                    baudRate=QtSerialPort.QSerialPort.Baud4800,
-                    readyRead=self.receive,
-                )
-                self.arduino.open(QIODevice.ReadWrite)
-                if self.arduino.isOpen():
-                    self.serialTimer.stop()
-                    self.portDevice = port.device
-                    break
+                if 'ACM' in port:
+                    self.arduino = QtSerialPort.QSerialPort(
+                        port.device,
+                        baudRate=QtSerialPort.QSerialPort.Baud4800,
+                        readyRead=self.receive,
+                    )
+                    self.arduino.open(QIODevice.ReadWrite)
+                    if self.arduino.isOpen():
+                        self.serialTimer.stop()
+                        self.portDevice = port.device
+                        break
         else:
             self.portDevice = u"NON CONNECTÉ"
 
