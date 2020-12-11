@@ -128,6 +128,7 @@ class Dashboard(QObject):
     def receive(self):
         """called when arduino send serial data"""
         while self.arduino.canReadLine():
+            print(self.arduino.readLine().data())
             text = self.arduino.readLine().data().decode()
             text = text.rstrip("\r\n")
             self.logReceive = text
@@ -138,21 +139,28 @@ class Dashboard(QObject):
             self.serialTimer.start()
 
     def updateGauges(self, data: str):
-        if data[0] == "T":
+        if data[0] == "T" and len(data) > 1:
+            print(data)
             temp = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
             self.temperatureGauge.setHtml(txt)
-        elif data[0] == "P":
+        elif data[0] == "P" and len(data) > 1:
             pressure = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Pression", value=pressure, unity=u" BAR")
             self.pressureGauge.setText(txt)
-        elif data[0] == "R":
+        elif data[0] == "R" and len(data) > 1:
             txt = gaugeHtml.format(
                 gaugeName=u"Vitesse de rotation", value=data[1:], unity=u" RPM"
             )
             self.rpmGauge.setText(txt)
-        elif data[0] == "A":
-            self.rubberAngleGauge.setValue(int(data[1:]))
+        elif data[0] == "A" and len(data) > 1:
+            print(data)
+            if data[1] == "-":
+                if data[2:].isnumeric():
+                    self.rubberAngleGauge.setValue(int(data[1:]))
+            else:
+                if data[1:].isnumeric():
+                    self.rubberAngleGauge.setValue(int(data[1:]))
         elif data[0] == "W":
             self.alarmsManager(data[1:])
         else:
@@ -217,7 +225,7 @@ class Dashboard(QObject):
     def alarmsManager(self, alarm: str):
         alarmState = int(alarm[0])
         alarmId = int(alarm[1:])
-        print(alarmState,alarmId)
+        #print(alarmState,alarmId)
         if alarmId == 0:
             if alarmState:
                 pass

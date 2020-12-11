@@ -28,6 +28,7 @@ int _rpm = 0;
 float _temp;
 //oil pressure of the engine
 int _pressure = 0;
+int _rudder = 0;
 
 //Pour les temporisations
 const unsigned long _periodWriting = 1000;
@@ -39,6 +40,8 @@ unsigned long _lastCheckTemp = 0;
 const unsigned long _periodCheckPressure = 1000;
 unsigned long _lastCheckPressure = 0;
 
+const unsigned long _periodCheckRudder = 500;
+unsigned long _lastCheckRudder = 0;
 
 // Alarm control
 boolean alarmState = 0;
@@ -144,10 +147,9 @@ void lightsCheck() {
 
 // Rudder angle Control
 int rudder;
-void rudderAngleControl() {
+int rudderAngleControl() {
     rudder = analogRead(RudderAnglePin);
-    Serial.print("A");
-    Serial.println((rudder / ( 1023 / 180)) - 90);
+    return ((rudder / ( 1023 / 180)) - 90);
 }
 
 
@@ -170,6 +172,7 @@ void setup() {
 // Setup loop
 void loop() {
     // COMMANDS
+    Serial.println(Serial.available());
     if(Serial.available() > 0) {
         //byte command = 0;
 		int command = Serial.read();
@@ -240,9 +243,12 @@ void loop() {
             alarmControl(0, 1);
         }
     }
-
-
-    rudderAngleControl();
+    if(millis() - _lastCheckRudder >= _periodCheckRudder){
+        _lastCheckRudder += _periodCheckRudder;
+        _rudder = rudderAngleControl();
+        Serial.print("A");
+        Serial.println(_rudder);
+    }    
 
     if(millis() - _lastCheckPressure >= _periodCheckPressure){
         _lastCheckPressure += _periodCheckPressure;
