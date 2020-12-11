@@ -55,12 +55,6 @@ int readRudderAngle();
 boolean alarmState = 0;
 int alarmID = 0;
 void alarmControl(boolean alarmState, int alarmID) {
-    if (alarmState==1) {
-        digitalWrite(RelayAlarm,HIGH);
-    }
-    else { 
-        digitalWrite(RelayAlarm,LOW);
-    }  
     Serial.print("W");
     Serial.print(alarmState);
     Serial.println(alarmID);
@@ -225,10 +219,10 @@ void loop() {
             digitalWrite(RelaySternLight,LOW);
             break;
         case 65 : //"A" STOP ALARME
-            alarmControl(0, 0);
+            digitalWrite(RelayAlarm,LOW);
             break;
-        case 66 : //"B" TEST ALARME
-            alarmControl(1, 9);
+        case 66 : //"B" ON ALARME
+            digitalWrite(RelayAlarm,HIGH);
             break;
         case 67 : //"C" TEST LIGHT
             lightsCheck();

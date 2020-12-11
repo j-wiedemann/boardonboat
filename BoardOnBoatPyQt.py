@@ -87,18 +87,19 @@ class Dashboard(QObject):
         self.rubberAngleGauge = self.window.findChild(QDial, "rudderAngle")
 
         ## ALARM CONTROL
-        self.alarmButton = self.window.findChild(QPushButton, "pushButton_Alarm")
-        self.alarmButton.clicked.connect(self.alarmButtonClicked)
+        self.alarmTestButton = self.window.findChild(QPushButton, "pushButton_testAlarm")
+        self.alarmTestButton.clicked.connect(self.alarmTestButtonClicked)
 
-        self.alarmState = False
-        self.tempAlarm = False
-        self.pressureAlarm = False
-        self.alternatorAlarm = False
-        self.lowBatteryAlarm = False
-        self.bowAlarm = False
-        self.portAlarm = False
-        self.starbordAlarm = False
-        self.sternAlarm = False
+        self.alarms = dict()
+        self.alarms["test"] = False
+        self.alarms["temp"] = False
+        self.alarms["pressure"] = False
+        self.alarms["alternator"] = False
+        self.alarms["lowBattery"] = False
+        self.alarms["bowLight"] = False
+        self.alarms["portLight"] = False
+        self.alarms["starbordLight"] = False
+        self.alarms["sternLight"] = False
 
         # Serial connecxion to  arduino
         self.portDevice = u"NON CONNECTÉ"
@@ -141,10 +142,10 @@ class Dashboard(QObject):
         """called when arduino send serial data"""
         while self.arduino.canReadLine():
             data = self.arduino.readLine().data()
-            print("ard read line",data)
+            #print("ard read line",data)
             try:
                 text = data.decode('utf-8').rstrip("\r\n")
-                print("ard decode rstrip",text)
+                #print("ard decode rstrip",text)
                 self.logReceive = text
                 if text:
                     self.updateGauges(text)
@@ -155,7 +156,7 @@ class Dashboard(QObject):
 
     @pyqtSlot()
     def updateGauges(self, data: str):
-        print("data",data)
+        #print("data",data)
         if data[0] == "T" and len(data) > 1:
             temp = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
@@ -241,124 +242,109 @@ class Dashboard(QObject):
     def horn_stop(self):
         self.arduino.write("E".encode("utf-8"))
 
-
-    def alarmButtonClicked(self):
-        if self.alarmState == True:
-            self.testAlarm = False
-            self.alarmState = False
-            self.arduino.write("A".encode("utf-8"))
-            self.alarmButton.setText(u"Tester\nAlarme")
-            self.logConsole.setStyleSheet(stylesheet[3])
+    def alarmTestButtonClicked(self):
+        if self.alarms["test"] == True:
+            self.alarmsManager(str("00"))
         else:
-            self.testAlarm = True
-            self.alarmState = True
-            self.arduino.write("B".encode("utf-8"))
-            self.alarmButton.setText(u"Effacer\nAlarme")
-            self.logConsole.setStyleSheet(stylesheet[1])
+            self.alarmsManager(str("10"))
+        #if True in self.alarms.value():
+        #    self
+        #if self.alarmState == True:
+        #    self.testAlarm = False
+        #    self.alarmState = False
+        #    self.arduino.write("A".encode("utf-8"))
+        #    self.alarmButton.setText(u"Tester\nAlarme")
+        #    self.logConsole.setStyleSheet(stylesheet[3])
+        #else:
+        #    self.testAlarm = True
+        #    self.alarmState = True
+        #    self.arduino.write("B".encode("utf-8"))
+        #    self.alarmButton.setText(u"Effacer\nAlarme")
+        #    self.logConsole.setStyleSheet(stylesheet[1])
 
     def alarmsManager(self, alarm: str):
         alarmState = int(alarm[0])
         alarmId = int(alarm[1:])
         #print(alarmState,alarmId)
+        if True in self.alarms.values():
+            wasTrue = True
+        else:
+            wasTrue = False
         if alarmId == 0:
             if alarmState:
-                pass
-                #self.logConsole.append(u"ALARME 0")
+                self.alarms["test"] = True
+                self.alarmTestButton.setText(u"Effacer\nAlarme")
             else:
-                pass
-                #self.logConsole.append(u"PAS D'ALARME")
-            #if alarmState:
-            #    self.logConsole.setStyleSheet(stylesheet[3])
-            #    self.alarmButton.setText(u"Tester\nAlarme")
+                self.alarms["test"] = False
+                self.alarmTestButton.setText(u"Tester\nAlarme")
         elif alarmId == 1:
             if alarmState:
-                self.tempAlarm = True
+                self.alarms["temp"] = True
                 self.temperatureGauge.setStyleSheet(stylesheet[1])
             else:
-                self.tempAlarm = False
+                self.alarms["temp"] = False
                 self.temperatureGauge.setStyleSheet(stylesheet[3])
         elif alarmId == 2:
             if alarmState:
-                self.pressureAlarm = True
+                self.alarms["pressure"] = True
                 self.pressureGauge.setStyleSheet(stylesheet[1])
             else:
-                self.pressureAlarm = False
+                self.alarms["pressure"] = False
                 self.pressureGauge.setStyleSheet(stylesheet[3])
         elif alarmId == 3:
             if alarmState:
-                self.alternatorAlarm = True
+                self.alarms["alternator"] = True
                 self.textEdit_Battery.setStyleSheet(stylesheet[1])
             else:
-                self.alternatorAlarm = False
+                self.alarms["alternator"] = False
                 self.textEdit_Battery.setStyleSheet(stylesheet[3])
         elif alarmId == 4:
             if alarmState:
-                self.lowBatteryAlarm = True
+                self.alarms["lowBattery"] = True
                 self.textEdit_Battery.setStyleSheet(stylesheet[1])
             else:
-                self.lowBatteryAlarm = False
+                self.alarms["lowBattery"] = False
                 self.textEdit_Battery.setStyleSheet(stylesheet[3])
         elif alarmId == 5:
             if alarmState:
-                self.bowAlarm = True
+                self.alarms["bowLight"] = True
                 self.bowLightButton.setStyleSheet(stylesheet[1])
             else:
-                self.bowAlarm = False
+                self.alarms["bowLight"] = False
                 self.bowLightButton.setStyleSheet(stylesheet[3])
         elif alarmId == 6:
             if alarmState:
-                self.portAlarm = True
+                self.alarms["portLight"] = True
                 self.bordLightButton.setStyleSheet(stylesheet[1])
             else:
-                self.portAlarm = False
+                self.alarms["portLight"] = False
                 self.bordLightButton.setStyleSheet(stylesheet[3])
         elif alarmId == 7:
             if alarmState:
-                self.starbordAlarm = True
+                self.alarms["starbordLight"] = True
                 self.starbordLightButton.setStyleSheet(stylesheet[1])
             else:
-                self.starbordAlarm = False
+                self.alarms["starbordLight"] = False
                 self.starbordLightButton.setStyleSheet(stylesheet[3])
         elif alarmId == 8:
             if alarmState:
-                self.sternAlarm = True
+                self.alarms["sternLight"] = True
                 self.sternLightButton.setStyleSheet(stylesheet[1])
             else:
-                self.sternAlarm = False
+                self.alarms["sternLight"] = False
                 self.sternLightButton.setStyleSheet(stylesheet[3])
-        elif alarmId == 9:
-            if alarmState:
-                self.testAlarm = True
-                self.alarmButton.setStyleSheet(stylesheet[1])
-            else:
-                self.testAlarm = False
-                self.alarmButton.setStyleSheet(stylesheet[3])
         else:
             pass
 
-        alarmList = [
-            self.testAlarm,
-            self.tempAlarm,
-            self.pressureAlarm,
-            self.alternatorAlarm,
-            self.lowBatteryAlarm,
-            self.bowAlarm,
-            self.portAlarm,
-            self.starbordAlarm,
-            self.sternAlarm,
-            ]
-        if True in alarmList:
-            #print("there is at least ONE alarm active")
-            self.alarmState = True
-            #self.arduino.write("B".encode("utf-8"))
-            self.logConsole.setStyleSheet(stylesheet[1])
-        elif self.alarmState == False:
-            pass
-        else:
-            #print("there is NO alarm active")
-            self.alarmState = False
+        if (wasTrue == False) and (True in self.alarms.values()):
+            print("Alarm is OFF and have to be ON")
+            self.arduino.write("B".encode("utf-8"))
+        elif (wasTrue == True) and (not True in self.alarms.values()):
+            print("Alarm is ON and have to be OFF")
             self.arduino.write("A".encode("utf-8"))
-            self.logConsole.setStyleSheet(stylesheet[3])
+        else:
+            #print("No changes for ALARM")
+            pass
 
     def updateLogConsole(self):
         msg = """<html><head/><body>
@@ -368,26 +354,28 @@ class Dashboard(QObject):
         msg += "</span></p>"
 
         msg += """<p><span style=" font-size:12pt;">Alarmes en cours :</span><ul>"""
-        if self.alarmState == False:
+        if not True in self.alarms.values():
+            self.logConsole.setStyleSheet(stylesheet[3])
             msg += "<li>Pas d'alarmes en cours</li>"
         else:
-            if self.testAlarm:
+            self.logConsole.setStyleSheet(stylesheet[1])
+            if self.alarms["test"]:
                 msg += "<li>ALARME TEST</li>"
-            if self.tempAlarm:
+            if self.alarms["temp"]:
                 msg += "<li>ALARME TEMPÉRATURE</li>"
-            if self.pressureAlarm:
+            if self.alarms["pressure"]:
                 msg += "<li>ALARME PRESSION HUILE</li>"
-            if self.alternatorAlarm:
+            if self.alarms["alternator"]:
                 msg += "<li>ALARME ALTERNATEUR</li>"
-            if self.lowBatteryAlarm:
+            if self.alarms["lowBattery"]:
                 msg += "<li>ALARME BATTERIE FAIBLE</li>"
-            if self.bowAlarm:
+            if self.alarms["bowLight"]:
                 msg += "<li>ALARME FEUX NAVIGATION PROUE</li>"
-            if self.portAlarm:
+            if self.alarms["portLight"]:
                 msg += "<li>ALARME FEUX NAVIGATION BABORD</li>"
-            if self.starbordAlarm:
+            if self.alarms["starbordLight"]:
                 msg += "<li>ALARME FEUX NAVIGATION TRIBORD</li>"
-            if self.sternAlarm:
+            if self.alarms["sternLight"]:
                 msg += "<li>ALARME FEUX NAVIGATION POUPE</li>"
         msg += "</ul></p>"
         msg += """<p><span style=" font-size:12pt;">Logs : {log}</span></p></body></html>""".format(log = self.logReceive)
