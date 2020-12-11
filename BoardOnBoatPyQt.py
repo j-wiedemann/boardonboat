@@ -113,10 +113,11 @@ class Dashboard(QObject):
                 if 'ACM' in str(port):
                     self.arduino = QtSerialPort.QSerialPort(
                         port.device,
-                        baudRate=QtSerialPort.QSerialPort.Baud4800,
+                        baudRate=QtSerialPort.QSerialPort.Baud9600,
                         readyRead=self.receive,
                     )
                     self.arduino.open(QIODevice.ReadWrite)
+                    self.arduino.flush
                     if self.arduino.isOpen():
                         self.serialTimer.stop()
                         self.portDevice = port.device
@@ -128,17 +129,19 @@ class Dashboard(QObject):
     def receive(self):
         """called when arduino send serial data"""
         while self.arduino.canReadLine():
-            print(self.arduino.readLine().data())
-            text = self.arduino.readLine().data().decode()
-            text = text.rstrip("\r\n")
+            data = self.arduino.readLine().data()
+            print("ard read line",data)
+            text = data.decode('utf-8').rstrip("\r\n")
+            print("ard decode rstrip",text)
             self.logReceive = text
             if text:
                 self.updateGauges(text)
         else:
             self.serialTimer.start()
 
+    @pyqtSlot()
     def updateGauges(self, data: str):
-        print(data)
+        print("data",data)
         if data[0] == "T" and len(data) > 1:
             temp = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
@@ -309,6 +312,8 @@ class Dashboard(QObject):
             self.alarmState = True
             #self.arduino.write("B".encode("utf-8"))
             self.logConsole.setStyleSheet(stylesheet[1])
+        elif self.alarmState == False:
+            pass
         else:
             #print("there is NO alarm active")
             self.alarmState = False

@@ -1,7 +1,7 @@
 // Board On Boat
 
 // Init
-const int baudRate = 4800; //constant integer to set the baud rate for serial monitor
+const int baudRate = 9600; //constant integer to set the baud rate for serial monitor
 
 // IN
 // ANALOG
@@ -34,14 +34,22 @@ int _rudder = 0;
 const unsigned long _periodWriting = 1000;
 unsigned long _lastConsoWriting = 0;
 
-const unsigned long _periodCheckTemp = 1000;
+const unsigned long _periodCheckTemp = 900;
 unsigned long _lastCheckTemp = 0;
 
-const unsigned long _periodCheckPressure = 1000;
+const unsigned long _periodCheckPressure = 800;
 unsigned long _lastCheckPressure = 0;
 
-const unsigned long _periodCheckRudder = 500;
+const unsigned long _periodCheckRudder = 700;
 unsigned long _lastCheckRudder = 0;
+
+void alarmControl();
+int readRPM();
+float readTemperature();
+int readPressure();
+void lightsCheck();
+int readRudderAngle();
+
 
 // Alarm control
 boolean alarmState = 0;
@@ -104,13 +112,13 @@ int readRPM(){
 }
 
 // Temperature control
-int Vo;
+//int Vo;
 float R1 = 10000;
 float logR2, R2, T;
 float c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
 float readTemperature() {
     // Temperature
-    Vo = analogRead(ThermistorPin);
+    int Vo = analogRead(ThermistorPin);
     R2 = R1 * (1023.0 / (float)Vo - 1.0);
     logR2 = log(R2);
     T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2));
@@ -121,7 +129,7 @@ float readTemperature() {
 // Pressure control
 const float  Offset = 0.397 ;
 float pressureV, pressureP;
-int pressureControl() {
+int readPressure() {
     //pressureV = analogRead(PressurePin) * 5.00 / 1024;     //Sensor output voltage
     //pressureP = (pressureV - Offset) * 400;             //Calculate water pressure
     pressureP = analogRead(PressurePin);
@@ -147,7 +155,7 @@ void lightsCheck() {
 
 // Rudder angle Control
 int rudder;
-int rudderAngleControl() {
+int readRudderAngle() {
     rudder = analogRead(RudderAnglePin);
     return ((rudder / ( 1023 / 180)) - 90);
 }
@@ -167,6 +175,12 @@ void setup() {
 
     //Initialisation of the digital pin
     pinMode(inpinrpm, INPUT);
+
+      //Init of the synchro var
+    _lastConsoWriting = millis();
+    _lastCheckTemp = _lastConsoWriting;
+    _lastCheckPressure = _lastConsoWriting;
+    _lastCheckRudder = _lastConsoWriting;
 }
 
 // Setup loop
@@ -176,7 +190,8 @@ void loop() {
     if(Serial.available() > 0) {
         //byte command = 0;
 		int command = Serial.read();
-        //Serial.println(command);
+        Serial.print("COM");
+        Serial.println(command);
         /**/
 
         switch (command)
@@ -223,44 +238,47 @@ void loop() {
         }
         /**/
     }
-
     if(millis() - _lastConsoWriting >= _periodWriting){
         _lastConsoWriting += _periodWriting;
         _rpm = readRPM();
-        Serial.print("R");
-        Serial.println(_rpm);
     }
 
     if(millis() - _lastCheckTemp >= _periodCheckTemp){
         _lastCheckTemp += _periodCheckTemp;
         _temp = readTemperature();
-        Serial.print("T");
-        Serial.println(_temp);
-        if (_temp > 23.0) {
-            alarmControl(1, 1);
-        }
-        else {
-            alarmControl(0, 1);
-        }
     }
+
     if(millis() - _lastCheckRudder >= _periodCheckRudder){
         _lastCheckRudder += _periodCheckRudder;
-        _rudder = rudderAngleControl();
-        Serial.print("A");
-        Serial.println(_rudder);
+        _rudder = readRudderAngle();
     }    
 
     if(millis() - _lastCheckPressure >= _periodCheckPressure){
         _lastCheckPressure += _periodCheckPressure;
-        _pressure = pressureControl();
-        Serial.print("P");
-        Serial.println(_pressure);
-        if (_pressure < 23.0 && _rpm > 0) {
-            alarmControl(1, 2);
-        }
-        else {
-            alarmControl(0, 2);
-        }
+        _pressure = readPressure();
     }
-    
+
+    Serial.print("R");
+    Serial.println(_rpm);
+
+    Serial.print("T");
+    Serial.println(_temp);
+    if (_temp > 23.0) {
+        alarmControl(1, 1);
+    }
+    else {
+        alarmControl(0, 1);
+    }
+
+    Serial.print("A");
+    Serial.println(_rudder);
+
+    Serial.print("P");
+    Serial.println(_pressure);
+    if (_pressure < 23.0 && _rpm > 0) {
+        alarmControl(1, 2);
+    }
+    else {
+        alarmControl(0, 2);
+    }
 }
