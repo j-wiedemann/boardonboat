@@ -54,12 +54,16 @@ int readRudderAngle();
 // Alarm control
 boolean alarmState = 0;
 int alarmID = 0;
-void alarmControl(boolean alarmState, int alarmID) {        
+void alarmControl(boolean alarmState, int alarmID) {
+    if (alarmState==1) {
+        digitalWrite(RelayAlarm,HIGH);
+    }
+    else { 
+        digitalWrite(RelayAlarm,LOW);
+    }  
     Serial.print("W");
     Serial.print(alarmState);
     Serial.println(alarmID);
-    //digitalWrite(RelayAlarm,HIGH);
-    //digitalWrite(RelayAlarm,LOW);
 }
 
 // RPM Control
@@ -220,12 +224,6 @@ void loop() {
         case 56 :
             digitalWrite(RelaySternLight,LOW);
             break;
-        case 57 :
-            digitalWrite(RelayHorn,HIGH);
-            break;
-        case 58 :
-            digitalWrite(RelayHorn,LOW);
-            break;
         case 65 : //"A" STOP ALARME
             alarmControl(0, 0);
             break;
@@ -234,6 +232,12 @@ void loop() {
             break;
         case 67 : //"C" TEST LIGHT
             lightsCheck();
+            break;
+        case 68 : //D
+            digitalWrite(RelayHorn,HIGH);
+            break;
+        case 69 : //E
+            digitalWrite(RelayHorn,LOW);
             break;
         }
         /**/

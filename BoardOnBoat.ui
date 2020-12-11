@@ -252,7 +252,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPushButton" name="pushButton_horn">
+        <widget class="QPushButton" name="pushButton_shortHorn">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -263,20 +263,36 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Signal Sonore</string>
+          <string>Signal Sonore
+Bref</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_hornSignals">
+        <widget class="QPushButton" name="pushButton_longHorn">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Signaux sonores</string>
+          <string>Signal Sonore
+Long</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_veryshortHorn">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Signal sonore
+Très bref</string>
          </property>
         </widget>
        </item>

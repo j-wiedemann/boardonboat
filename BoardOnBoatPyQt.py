@@ -22,7 +22,6 @@ stylesheet = [
 ]
 
 
-
 class Dashboard(QObject):
     def __init__(self, ui_file, parent=None):
         super(Dashboard, self).__init__(parent)
@@ -33,9 +32,21 @@ class Dashboard(QObject):
         self.window = uic.loadUi(ui_file)
         ui_file.close()
 
+        self.window.showMaximized()
+
         # LOG CONSOLE
         self.logConsole = self.window.findChild(QTextEdit, "textEdit_Logs")
 
+
+        # Horn button
+        self.shortHornButton = self.window.findChild(QPushButton, "pushButton_shortHorn")
+        self.shortHornButton.clicked.connect(self.shortHornButtonPressed)
+        # Horn button
+        self.longHornButton = self.window.findChild(QPushButton, "pushButton_longHorn")
+        self.longHornButton.clicked.connect(self.longHornButtonPressed)
+        # Horn button
+        self.veryshortHornButton = self.window.findChild(QPushButton, "pushButton_veryshortHorn")
+        self.veryshortHornButton.clicked.connect(self.veryshortHornButtonPressed)
         # GAUGES
         self.temperatureGauge = self.window.findChild(QTextEdit, "textEdit_Temperature")
         self.pressureGauge = self.window.findChild(QTextEdit, "textEdit_Pressure")
@@ -131,11 +142,14 @@ class Dashboard(QObject):
         while self.arduino.canReadLine():
             data = self.arduino.readLine().data()
             print("ard read line",data)
-            text = data.decode('utf-8').rstrip("\r\n")
-            print("ard decode rstrip",text)
-            self.logReceive = text
-            if text:
-                self.updateGauges(text)
+            try:
+                text = data.decode('utf-8').rstrip("\r\n")
+                print("ard decode rstrip",text)
+                self.logReceive = text
+                if text:
+                    self.updateGauges(text)
+            except:
+                pass
         else:
             self.serialTimer.start()
 
@@ -212,13 +226,32 @@ class Dashboard(QObject):
     def testLighsButtonClicked(self):
         self.arduino.write("C".encode("utf-8"))
 
+    def shortHornButtonPressed(self):
+        QTimer.singleShot(1000, self.horn_stop)
+        self.arduino.write("D".encode("utf-8"))
+
+    def longHornButtonPressed(self):
+        QTimer.singleShot(4000, self.horn_stop)
+        self.arduino.write("D".encode("utf-8"))
+
+    def veryshortHornButtonPressed(self):
+        QTimer.singleShot(500, self.horn_stop)
+        self.arduino.write("D".encode("utf-8"))
+
+    def horn_stop(self):
+        self.arduino.write("E".encode("utf-8"))
+
+
     def alarmButtonClicked(self):
         if self.alarmState == True:
-            self.arduino.write("A".encode("utf-8"))
+            self.testAlarm = False
             self.alarmState = False
-            self.logConsole.setStyleSheet(stylesheet[3])
+            self.arduino.write("A".encode("utf-8"))
             self.alarmButton.setText(u"Tester\nAlarme")
+            self.logConsole.setStyleSheet(stylesheet[3])
         else:
+            self.testAlarm = True
+            self.alarmState = True
             self.arduino.write("B".encode("utf-8"))
             self.alarmButton.setText(u"Effacer\nAlarme")
             self.logConsole.setStyleSheet(stylesheet[1])
@@ -293,11 +326,18 @@ class Dashboard(QObject):
             else:
                 self.sternAlarm = False
                 self.sternLightButton.setStyleSheet(stylesheet[3])
+        elif alarmId == 9:
+            if alarmState:
+                self.testAlarm = True
+                self.alarmButton.setStyleSheet(stylesheet[1])
+            else:
+                self.testAlarm = False
+                self.alarmButton.setStyleSheet(stylesheet[3])
         else:
             pass
 
         alarmList = [
-            0,
+            self.testAlarm,
             self.tempAlarm,
             self.pressureAlarm,
             self.alternatorAlarm,
@@ -331,6 +371,8 @@ class Dashboard(QObject):
         if self.alarmState == False:
             msg += "<li>Pas d'alarmes en cours</li>"
         else:
+            if self.testAlarm:
+                msg += "<li>ALARME TEST</li>"
             if self.tempAlarm:
                 msg += "<li>ALARME TEMPÉRATURE</li>"
             if self.pressureAlarm:
