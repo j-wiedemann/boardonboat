@@ -172,7 +172,7 @@ void setup() {
 // Setup loop
 void loop() {
     // COMMANDS
-    Serial.println(Serial.available());
+    //Serial.println(Serial.available());
     if(Serial.available() > 0) {
         //byte command = 0;
 		int command = Serial.read();

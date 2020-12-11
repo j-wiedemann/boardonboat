@@ -132,15 +132,14 @@ class Dashboard(QObject):
             text = self.arduino.readLine().data().decode()
             text = text.rstrip("\r\n")
             self.logReceive = text
-            #self.logConsole.append(text)
             if text:
                 self.updateGauges(text)
         else:
             self.serialTimer.start()
 
     def updateGauges(self, data: str):
+        print(data)
         if data[0] == "T" and len(data) > 1:
-            print(data)
             temp = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
             self.temperatureGauge.setHtml(txt)
@@ -154,14 +153,13 @@ class Dashboard(QObject):
             )
             self.rpmGauge.setText(txt)
         elif data[0] == "A" and len(data) > 1:
-            print(data)
             if data[1] == "-":
                 if data[2:].isnumeric():
                     self.rubberAngleGauge.setValue(int(data[1:]))
             else:
                 if data[1:].isnumeric():
                     self.rubberAngleGauge.setValue(int(data[1:]))
-        elif data[0] == "W":
+        elif data[0] == "W" and len(data) > 1:
             self.alarmsManager(data[1:])
         else:
             text = "UNKNOW DATA : " + str(data)
