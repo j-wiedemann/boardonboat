@@ -6,7 +6,7 @@ import serial.tools.list_ports
 
 
 from PyQt5 import uic, QtSerialPort
-from PyQt5.QtWidgets import QApplication, QPushButton, QTextEdit, QDial
+from PyQt5.QtWidgets import QApplication, QPushButton, QTextEdit, QDial, QLabel
 from PyQt5.QtCore import QFile, QObject, QIODevice, QTimer, pyqtSlot
 
 
@@ -34,23 +34,34 @@ class Dashboard(QObject):
 
         self.window.showMaximized()
 
-        # LOG CONSOLE
-        self.logConsole = self.window.findChild(QTextEdit, "textEdit_Logs")
-
-
-        # Horn button
-        self.shortHornButton = self.window.findChild(QPushButton, "pushButton_shortHorn")
-        self.shortHornButton.clicked.connect(self.shortHornButtonPressed)
-        # Horn button
-        self.longHornButton = self.window.findChild(QPushButton, "pushButton_longHorn")
-        self.longHornButton.clicked.connect(self.longHornButtonPressed)
-        # Horn button
-        self.veryshortHornButton = self.window.findChild(QPushButton, "pushButton_veryshortHorn")
-        self.veryshortHornButton.clicked.connect(self.veryshortHornButtonPressed)
         # GAUGES
         self.temperatureGauge = self.window.findChild(QTextEdit, "textEdit_Temperature")
         self.pressureGauge = self.window.findChild(QTextEdit, "textEdit_Pressure")
         self.rpmGauge = self.window.findChild(QTextEdit, "textEdit_RPM")
+        self.batteryGauge = self.window.findChild(QTextEdit, "textEdit_Battery")
+        
+        # RUDDER ANGLE INDICATOR
+        self.rudderAngleGauge = self.window.findChild(QDial, "rudderAngle")
+
+        ## ALARM CONTROL
+        self.alarmTestButton = self.window.findChild(QPushButton, "pushButton_testAlarm")
+        self.alarmTestButton.clicked.connect(self.alarmTestButtonClicked)
+
+        # LOG CONSOLE
+        self.logConsole = self.window.findChild(QTextEdit, "textEdit_Logs")
+        
+        # HORNS
+        ## Horn button
+        self.shortHornButton = self.window.findChild(QPushButton, "pushButton_shortHorn")
+        self.shortHornButton.clicked.connect(self.shortHornButtonPressed)
+        
+        ## Horn button
+        self.longHornButton = self.window.findChild(QPushButton, "pushButton_longHorn")
+        self.longHornButton.clicked.connect(self.longHornButtonPressed)
+        
+        ## Horn button
+        self.veryshortHornButton = self.window.findChild(QPushButton, "pushButton_veryshortHorn")
+        self.veryshortHornButton.clicked.connect(self.veryshortHornButtonPressed)
 
         # LIGHTS BUTTONS
         ## Bow light
@@ -82,13 +93,6 @@ class Dashboard(QObject):
             QPushButton, "pushButton_lightsTest"
         )
         self.testLightsButton.clicked.connect(self.testLighsButtonClicked)
-        
-        # RUDDER ANGLE INDICATOR
-        self.rubberAngleGauge = self.window.findChild(QDial, "rudderAngle")
-
-        ## ALARM CONTROL
-        self.alarmTestButton = self.window.findChild(QPushButton, "pushButton_testAlarm")
-        self.alarmTestButton.clicked.connect(self.alarmTestButtonClicked)
 
         self.alarms = dict()
         self.alarms["test"] = False
@@ -157,57 +161,82 @@ class Dashboard(QObject):
     @pyqtSlot()
     def updateGauges(self, data: str):
         #print("data",data)
+        # TEMP
         if data[0] == "T" and len(data) > 1:
             temp = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
             self.temperatureGauge.setHtml(txt)
+        
+        # Pressure
         elif data[0] == "P" and len(data) > 1:
             pressure = float(data[1:])
             txt = gaugeHtml.format(gaugeName=u"Pression", value=pressure, unity=u" BAR")
             self.pressureGauge.setText(txt)
+        
+        # RPM
         elif data[0] == "R" and len(data) > 1:
             txt = gaugeHtml.format(
                 gaugeName=u"Vitesse de rotation", value=data[1:], unity=u" RPM"
             )
             self.rpmGauge.setText(txt)
+        
+        # VOLATGE
+        elif data[0] == "V" and len(data) > 1:
+            #if data[1:].isnumeric():
+            volt = float(data[1:])
+            txt = gaugeHtml.format(gaugeName=u"Voltage", value=volt, unity=u" V")
+            self.batteryGauge.setText(txt)
+        
+        # RUDDER ANGLE
         elif data[0] == "A" and len(data) > 1:
-            if data[1] == "-":
-                if data[2:].isnumeric():
-                    self.rubberAngleGauge.setValue(int(data[1:]))
-            else:
-                if data[1:].isnumeric():
-                    self.rubberAngleGauge.setValue(int(data[1:]))
+            self.rudderAngleGauge.setValue(int(float(data[1:])))
+        
+        # ALARME
         elif data[0] == "W" and len(data) > 1:
             self.alarmsManager(data[1:])
+        
+        # OTHER
         else:
             text = "UNKNOW DATA : " + str(data)
             self.logReceive = text
 
     def ligthsButtonsClicked(self):
+        lightsState = [0, 0, 0, 0]
         if self.bowLightButton.isChecked():
-            self.arduino.write("1".encode("utf-8"))
+            lightsState[0] = 1
             self.bowLightButton.setStyleSheet(stylesheet[2])
+            self.arduino.write("1".encode("utf-8"))
         else:
             self.arduino.write("2".encode("utf-8"))
             self.bowLightButton.setStyleSheet("")
         if self.bordLightButton.isChecked():
+            lightsState[1] = 1
             self.arduino.write("3".encode("utf-8"))
             self.bordLightButton.setStyleSheet(stylesheet[2])
         else:
             self.arduino.write("4".encode("utf-8"))
             self.bordLightButton.setStyleSheet("")
         if self.starbordLightButton.isChecked():
+            lightsState[2] = 1
             self.arduino.write("5".encode("utf-8"))
             self.starbordLightButton.setStyleSheet(stylesheet[2])
         else:
             self.arduino.write("6".encode("utf-8"))
             self.starbordLightButton.setStyleSheet("")
         if self.sternLightButton.isChecked():
+            lightsState[3] = 1
             self.arduino.write("7".encode("utf-8"))
             self.sternLightButton.setStyleSheet(stylesheet[2])
         else:
             self.arduino.write("8".encode("utf-8"))
             self.sternLightButton.setStyleSheet("")
+        if not 0 in lightsState:
+            self.allLightsButton.setChecked(True)
+            self.allLightsButton.setText(u"TOUT ÉTEINDRE")
+        elif not 1 in lightsState:
+            self.allLightsButton.setChecked(False)
+            self.allLightsButton.setText(u"TOUT ALLUMER")
+
 
     def allLighsButtonClicked(self):
         if self.allLightsButton.isChecked():
@@ -247,20 +276,6 @@ class Dashboard(QObject):
             self.alarmsManager(str("00"))
         else:
             self.alarmsManager(str("10"))
-        #if True in self.alarms.value():
-        #    self
-        #if self.alarmState == True:
-        #    self.testAlarm = False
-        #    self.alarmState = False
-        #    self.arduino.write("A".encode("utf-8"))
-        #    self.alarmButton.setText(u"Tester\nAlarme")
-        #    self.logConsole.setStyleSheet(stylesheet[3])
-        #else:
-        #    self.testAlarm = True
-        #    self.alarmState = True
-        #    self.arduino.write("B".encode("utf-8"))
-        #    self.alarmButton.setText(u"Effacer\nAlarme")
-        #    self.logConsole.setStyleSheet(stylesheet[1])
 
     def alarmsManager(self, alarm: str):
         alarmState = int(alarm[0])
@@ -380,10 +395,7 @@ class Dashboard(QObject):
         msg += "</ul></p>"
         msg += """<p><span style=" font-size:12pt;">Logs : {log}</span></p></body></html>""".format(log = self.logReceive)
 
-        #<p><span style=" font-size:18pt;">{alarm}</span></p>
         self.logConsole.setText(msg)
-
-        #<p><span style=" font-size:12pt;">Logs : {log}</span></p>
 
 
 if __name__ == "__main__":
