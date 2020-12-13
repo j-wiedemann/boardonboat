@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import sys
+from datetime import datetime
 import serial
 import serial.tools.list_ports
 
@@ -21,6 +22,13 @@ stylesheet = [
     "background-color: rgb(255, 255, 255);",  # white
 ]
 
+DEBUG = True
+
+def print_debug(msg):
+    if DEBUG == True:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print(current_time,msg)
 
 class Dashboard(QObject):
     def __init__(self, ui_file, parent=None):
@@ -32,7 +40,10 @@ class Dashboard(QObject):
         self.window = uic.loadUi(ui_file)
         ui_file.close()
 
-        self.window.showMaximized()
+        if DEBUG:
+            self.window.setGeometry(0, 0, 512, 600)
+        else:
+            self.window.showMaximized()
 
         # GAUGES
         self.temperatureGauge = self.window.findChild(QTextEdit, "textEdit_Temperature")
@@ -125,6 +136,7 @@ class Dashboard(QObject):
     def getArduinoSerial(self):
         ports = serial.tools.list_ports.comports(include_links=False)
         if len(ports) > 0:
+            device = False
             for port in ports:
                 if 'ACM' in str(port):
                     self.arduino = QtSerialPort.QSerialPort(
@@ -137,9 +149,15 @@ class Dashboard(QObject):
                     if self.arduino.isOpen():
                         self.serialTimer.stop()
                         self.portDevice = port.device
+                        device = True
+                        print_debug(self.portDevice)
                         break
+            if not device:
+                self.portDevice = u"NON CONNECTÉ"
+                print_debug(self.portDevice)
         else:
             self.portDevice = u"NON CONNECTÉ"
+            print_debug(self.portDevice)
 
     @pyqtSlot()
     def receive(self):
@@ -194,6 +212,7 @@ class Dashboard(QObject):
         # ALARME
         elif data[0] == "W" and len(data) > 1:
             self.alarmsManager(data[1:])
+            print_debug(data)
         
         # OTHER
         else:
@@ -352,10 +371,12 @@ class Dashboard(QObject):
             pass
 
         if (wasTrue == False) and (True in self.alarms.values()):
-            print("Alarm is OFF and have to be ON")
+            print_debug("Alarm is OFF and have to be ON")
+            print_debug(str(self.alarms))
             self.arduino.write("B".encode("utf-8"))
         elif (wasTrue == True) and (not True in self.alarms.values()):
-            print("Alarm is ON and have to be OFF")
+            print_debug("Alarm is ON and have to be OFF")
+            print_debug(str(self.alarms))
             self.arduino.write("A".encode("utf-8"))
         else:
             #print("No changes for ALARM")
