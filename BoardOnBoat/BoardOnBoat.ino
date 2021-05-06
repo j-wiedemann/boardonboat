@@ -48,10 +48,10 @@ unsigned long _lastCheckRudder = 0;
 const unsigned long _periodCheckLights = 1000;
 unsigned long _lastCheckLights = 0;
 
-const unsigned long _periodCheckVolt = 250;
+const unsigned long _periodCheckVolt = 1000;
 unsigned long _lastCheckVolt = 0;
 
-void alarmControl();
+// void alarmControl();
 int readRPM();
 float readTemperature();
 int readPressure();
@@ -60,15 +60,6 @@ float readRudderAngle();
 void lightsCheckControl2();
 float readVoltage();
 
-
-// Alarm control
-boolean alarmState = 0;
-int alarmID = 0;
-void alarmControl(boolean alarmState, int alarmID) {
-    Serial.print("W");
-    Serial.print(alarmState);
-    Serial.println(alarmID);
-}
 
 // RPM Control
 //Cette fonction permet de retourner le regime moteur.
@@ -148,43 +139,55 @@ int readPressure() {
 //  Lights check control
 void lightsCheck() {
     if (digitalRead(BowLightPin) == HIGH) {
-        alarmControl(1, 5);
+        Serial.print("W1BOW");
+    }
+    else {
+        Serial.print("W0BOW");
     }
     if (digitalRead(PortLightPin) == HIGH) {
-        alarmControl(1, 6);
+        Serial.print("W1PORT");
+    }
+    else {
+        Serial.print("W0PORT");
     }
     if (digitalRead(StarbordLightPin) == HIGH) {
-        alarmControl(1, 7);
+        Serial.print("W1STAR");
+    }
+    else {
+        Serial.print("W0STAR");
     }
     if (digitalRead(SternLightPin) == HIGH) {
-        alarmControl(1, 8);
+        Serial.print("W1STERN");
+    }
+    else {
+        Serial.print("W0STERN");
     }
 }
 
 void lightsCheckControl2() {
     if ((digitalRead(RelayBowLight) == HIGH) && (digitalRead(BowLightPin)) == LOW) {
-        alarmControl(1, 5);
+        Serial.print("W1BOW");
     }
     else {
-        alarmControl(0, 5);
+        Serial.print("W0BOW");
     }
     if ((digitalRead(RelayPortLight) == HIGH) && (digitalRead(PortLightPin)) == LOW) {
-        alarmControl(1, 6);
+        Serial.print("W1PORT");
     }
     else {
-        alarmControl(0, 6);
+        Serial.print("W0PORT");
     }
     if ((digitalRead(RelayStarbordLight) == HIGH) && (digitalRead(StarbordLightPin)) == LOW) {
-        alarmControl(1, 7);
+        Serial.print("W1STAR");
     }
     else {
-        alarmControl(0, 7);
+        Serial.print("W0STAR");
     }
     if ((digitalRead(RelaySternLight) == HIGH) && (digitalRead(SternLightPin)) == LOW) {
-        alarmControl(1, 8);
+        Serial.print("W1STERN");
     }
     else {
-        alarmControl(0, 8);
+        Serial.print("W0STERN");
     }
 }
 
@@ -296,12 +299,6 @@ void loop() {
         _temp = readTemperature();
         Serial.print("T");
         Serial.println(_temp);
-        if (_temp > 30.0) {
-            alarmControl(1, 1);
-        }
-        else {
-            alarmControl(0, 1);
-        }
     }
 
     if(millis() - _lastCheckRudder >= _periodCheckRudder){
@@ -316,12 +313,6 @@ void loop() {
         _pressure = readPressure();
         Serial.print("P");
         Serial.println(_pressure);
-        if (_pressure < 23.0 && _rpm > 0) {
-            alarmControl(1, 2);
-        }
-        else {
-            alarmControl(0, 2);
-        }
     }
 
     if(millis() - _lastCheckLights >= _periodCheckLights){
