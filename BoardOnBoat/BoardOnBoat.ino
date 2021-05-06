@@ -139,55 +139,55 @@ int readPressure() {
 //  Lights check control
 void lightsCheck() {
     if (digitalRead(BowLightPin) == HIGH) {
-        Serial.print("W1BOW");
+        Serial.println("W1BOW");
     }
     else {
-        Serial.print("W0BOW");
+        Serial.println("W0BOW");
     }
     if (digitalRead(PortLightPin) == HIGH) {
-        Serial.print("W1PORT");
+        Serial.println("W1PORT");
     }
     else {
-        Serial.print("W0PORT");
+        Serial.println("W0PORT");
     }
     if (digitalRead(StarbordLightPin) == HIGH) {
-        Serial.print("W1STAR");
+        Serial.println("W1STAR");
     }
     else {
-        Serial.print("W0STAR");
+        Serial.println("W0STAR");
     }
     if (digitalRead(SternLightPin) == HIGH) {
-        Serial.print("W1STERN");
+        Serial.println("W1STERN");
     }
     else {
-        Serial.print("W0STERN");
+        Serial.println("W0STERN");
     }
 }
 
 void lightsCheckControl2() {
     if ((digitalRead(RelayBowLight) == HIGH) && (digitalRead(BowLightPin)) == LOW) {
-        Serial.print("W1BOW");
+        Serial.println("W1BOW");
     }
     else {
-        Serial.print("W0BOW");
+        Serial.println("W0BOW");
     }
     if ((digitalRead(RelayPortLight) == HIGH) && (digitalRead(PortLightPin)) == LOW) {
         Serial.print("W1PORT");
     }
     else {
-        Serial.print("W0PORT");
+        Serial.println("W0PORT");
     }
     if ((digitalRead(RelayStarbordLight) == HIGH) && (digitalRead(StarbordLightPin)) == LOW) {
-        Serial.print("W1STAR");
+        Serial.println("W1STAR");
     }
     else {
-        Serial.print("W0STAR");
+        Serial.println("W0STAR");
     }
     if ((digitalRead(RelaySternLight) == HIGH) && (digitalRead(SternLightPin)) == LOW) {
-        Serial.print("W1STERN");
+        Serial.println("W1STERN");
     }
     else {
-        Serial.print("W0STERN");
+        Serial.println("W0STERN");
     }
 }
 

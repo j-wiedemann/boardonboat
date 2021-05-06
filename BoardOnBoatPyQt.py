@@ -145,7 +145,6 @@ class Dashboard(QObject):
         self.alarmsManagerTimer = QTimer()
         self.alarmsManagerTimer.setInterval(1000)
         self.alarmsManagerTimer.timeout.connect(self.alarmsManager)
-        self.alarmsManagerTimer.start()
         
         # Show window
         self.window.show()
@@ -168,6 +167,7 @@ class Dashboard(QObject):
                         self.portDevice = port.device
                         device = True
                         print_debug(self.portDevice)
+                        self.alarmsManagerTimer.start()
                         break
             if not device:
                 self.portDevice = u"NON CONNECTÉ"
