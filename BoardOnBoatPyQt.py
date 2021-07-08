@@ -201,9 +201,7 @@ class Dashboard(QObject):
                 print_debug(u"cant decode : {}".format(data))
                 pass
         else:
-            #print_debug(u"cant Read Line")
-        #    print_debug(u"serialTimer.start()")
-        #    self.serialTimer.start()
+            print_debug(u"arduino.canReadLine() is False")
             pass
 
     @pyqtSlot()
@@ -439,104 +437,22 @@ class Dashboard(QObject):
             self.bordLightButton.setStyleSheet(stylesheet[3])
         else:
             self.bordLightButton.setStyleSheet(stylesheet[1])
+            self.bordLightButton.setChecked(False)
+            self.arduino.write("4".encode("utf-8"))
 
         if self.alarms["starboardLight"] == False:
             self.starboardLightButton.setStyleSheet(stylesheet[3])
         else:
             self.starboardLightButton.setStyleSheet(stylesheet[1])
+            self.starboardLightButton.setChecked(False)
+            self.arduino.write("6".encode("utf-8"))
 
         if self.alarms["sternLight"] == False:
             self.sternLightButton.setStyleSheet(stylesheet[3])
         else:
             self.sternLightButton.setStyleSheet(stylesheet[1])
-
-
-        """    
-        alarmState = int(alarm[0])
-        alarmId = int(alarm[1:])
-        #print(alarmState,alarmId)
-        if True in self.alarms.values():
-            wasTrue = True
-        else:
-            wasTrue = False
-        if alarmId == 0:
-            if alarmState:
-                self.alarms["test"] = True
-                self.alarmTestButton.setText(u"Effacer\nAlarme")
-            else:
-                self.alarms["test"] = False
-                self.alarmTestButton.setText(u"Tester\nAlarme")
-        elif alarmId == 1:
-            if alarmState:
-                self.alarms["temp"] = True
-                self.temperatureGauge.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["temp"] = False
-                self.temperatureGauge.setStyleSheet(stylesheet[3])
-        elif alarmId == 2:
-            if alarmState:
-                self.alarms["pressure"] = True
-                self.pressureGauge.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["pressure"] = False
-                self.pressureGauge.setStyleSheet(stylesheet[3])
-        elif alarmId == 3:
-            if alarmState:
-                self.alarms["alternator"] = True
-                self.textEdit_Battery.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["alternator"] = False
-                self.textEdit_Battery.setStyleSheet(stylesheet[3])
-        elif alarmId == 4:
-            if alarmState:
-                self.alarms["lowBattery"] = True
-                self.textEdit_Battery.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["lowBattery"] = False
-                self.textEdit_Battery.setStyleSheet(stylesheet[3])
-        elif alarmId == 5:
-            if alarmState:
-                self.alarms["bowLight"] = True
-                self.bowLightButton.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["bowLight"] = False
-                self.bowLightButton.setStyleSheet(stylesheet[3])
-        elif alarmId == 6:
-            if alarmState:
-                self.alarms["portLight"] = True
-                self.bordLightButton.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["portLight"] = False
-                self.bordLightButton.setStyleSheet(stylesheet[3])
-        elif alarmId == 7:
-            if alarmState:
-                self.alarms["starboardLight"] = True
-                self.starboardLightButton.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["starboardLight"] = False
-                self.starboardLightButton.setStyleSheet(stylesheet[3])
-        elif alarmId == 8:
-            if alarmState:
-                self.alarms["sternLight"] = True
-                self.sternLightButton.setStyleSheet(stylesheet[1])
-            else:
-                self.alarms["sternLight"] = False
-                self.sternLightButton.setStyleSheet(stylesheet[3])
-        else:
-            pass
-
-        if (wasTrue == False) and (True in self.alarms.values()):
-            print_debug("Alarm is OFF and have to be ON")
-            print_debug(str(self.alarms))
-            self.arduino.write("B".encode("utf-8"))
-        elif (wasTrue == True) and (not True in self.alarms.values()):
-            print_debug("Alarm is ON and have to be OFF")
-            print_debug(str(self.alarms))
-            self.arduino.write("A".encode("utf-8"))
-        else:
-            #print("No changes for ALARM")
-            pass
-        """
+            self.sternLightButton.setChecked(False)
+            self.arduino.write("8".encode("utf-8"))
 
     def updateLogConsole(self):
         msg = """<html><head/><body>
