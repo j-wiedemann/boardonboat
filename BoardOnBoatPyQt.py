@@ -201,7 +201,7 @@ class Dashboard(QObject):
                 print_debug(u"cant decode : {}".format(data))
                 pass
         else:
-            print_debug(u"arduino.canReadLine() is False")
+            # print_debug(u"arduino.canReadLine() is False")
             pass
 
     @pyqtSlot()
