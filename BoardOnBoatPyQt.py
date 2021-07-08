@@ -24,9 +24,16 @@ stylesheet = [
 ]
 
 DEBUG = True
+DEBUG_ARDUINO_LOGS = False
 
 def print_debug(msg):
     if DEBUG == True:
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print(current_time,msg)
+        
+def print_arduino_log(msg):
+    if DEBUG_ARDUINO_LOGS == True:
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print(current_time,msg)
@@ -123,7 +130,7 @@ class Dashboard(QObject):
         # value list
         self.temperatures = [0] * 15
         self.pressures = [0] * 15
-        self.voltages = [0] * 15
+        self.voltages = [0] * 1
 
         # Serial connecxion to  arduino
         self.portDevice = u"NON CONNECTÉ"
@@ -150,6 +157,7 @@ class Dashboard(QObject):
         self.window.show()
 
     def getArduinoSerial(self):
+        print_debug(u"getArduinoSerial")
         ports = serial.tools.list_ports.comports(include_links=False)
         if len(ports) > 0:
             device = False
@@ -166,15 +174,15 @@ class Dashboard(QObject):
                         self.serialTimer.stop()
                         self.portDevice = port.device
                         device = True
-                        print_debug(self.portDevice)
+                        print_debug(u"Device founded : {}".format(self.portDevice))
                         self.alarmsManagerTimer.start()
                         break
             if not device:
                 self.portDevice = u"NON CONNECTÉ"
-                print_debug(self.portDevice)
+                print_debug("No device found :(")
         else:
             self.portDevice = u"NON CONNECTÉ"
-            print_debug(self.portDevice)
+            print_debug(u"len(ports) < 1 :(")
 
     @pyqtSlot()
     def receive(self):
@@ -189,13 +197,17 @@ class Dashboard(QObject):
                 if text:
                     self.updateGauges(text)
             except:
+                print_debug(u"cant decode : {}".format(data))
                 pass
         else:
-            self.serialTimer.start()
+            #print_debug(u"cant Read Line")
+        #    print_debug(u"serialTimer.start()")
+        #    self.serialTimer.start()
+            pass
 
     @pyqtSlot()
     def updateGauges(self, data: str):
-        #print("data",data)
+        print_arduino_log(data)
         # TEMP
         if data[0] == "T" and len(data) > 1:
             self.temperatures.append(int(float(data[1:])))
@@ -233,7 +245,7 @@ class Dashboard(QObject):
             #if data[1:].isnumeric():
             self.voltages.append(float(data[1:]))
             self.voltages.pop(0)
-            volt = round(mean(self.voltages), 2)
+            volt = round(mean(self.voltages), 1)
             txt = gaugeHtml.format(gaugeName=u"Voltage", value=volt, unity=u" V")
             self.batteryGauge.setText(txt)
             if volt < 23.5:
