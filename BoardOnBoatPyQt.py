@@ -412,10 +412,12 @@ class Dashboard(QObject):
             self.arduino.write("B".encode("utf-8"))
             self.logSend = "B"
             self.updateLogConsole()
+
         if self.alarms["temp"] == True:
             self.temperatureGauge.setStyleSheet(stylesheet[1])
         else:
             self.temperatureGauge.setStyleSheet(stylesheet[3])
+
         if self.alarms["pressure"] == True:
             self.pressureGauge.setStyleSheet(stylesheet[1])
         else:
@@ -425,19 +427,23 @@ class Dashboard(QObject):
             self.batteryGauge.setStyleSheet(stylesheet[3])
         else:
             self.batteryGauge.setStyleSheet(stylesheet[1])
+
         if self.alarms["bowLight"] == False:
             self.bowLightButton.setStyleSheet(stylesheet[3])
-            self.bowLightButton.setChecked(False)
         else:
             self.bowLightButton.setStyleSheet(stylesheet[1])
+            self.bowLightButton.setChecked(False)
+
         if self.alarms["portLight"] == False:
             self.bordLightButton.setStyleSheet(stylesheet[3])
         else:
             self.bordLightButton.setStyleSheet(stylesheet[1])
+
         if self.alarms["starboardLight"] == False:
             self.starboardLightButton.setStyleSheet(stylesheet[3])
         else:
             self.starboardLightButton.setStyleSheet(stylesheet[1])
+
         if self.alarms["sternLight"] == False:
             self.sternLightButton.setStyleSheet(stylesheet[3])
         else:
