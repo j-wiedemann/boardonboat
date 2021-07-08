@@ -25,6 +25,7 @@ stylesheet = [
 
 DEBUG = True
 DEBUG_ARDUINO_LOGS = False
+DEBUG_WINDOW = False
 
 def print_debug(msg):
     if DEBUG == True:
@@ -48,7 +49,7 @@ class Dashboard(QObject):
         self.window = uic.loadUi(ui_file)
         ui_file.close()
 
-        if DEBUG:
+        if DEBUG_WINDOW:
             self.window.setGeometry(0, 0, 512, 600)
         else:
             self.window.showMaximized()
@@ -303,46 +304,46 @@ class Dashboard(QObject):
         lightsState = [0, 0, 0, 0]
         if self.bowLightButton.isChecked():
             lightsState[0] = 1
-            self.bowLightButton.setStyleSheet(stylesheet[2])
+            #self.bowLightButton.setStyleSheet(stylesheet[2])
             self.arduino.write("1".encode("utf-8"))
             self.logSend = "1"
             self.updateLogConsole()
         else:
             self.arduino.write("2".encode("utf-8"))
-            self.bowLightButton.setStyleSheet("")
+            #self.bowLightButton.setStyleSheet("")
             self.logSend = "2"
             self.updateLogConsole()
         if self.bordLightButton.isChecked():
             lightsState[1] = 1
             self.arduino.write("3".encode("utf-8"))
-            self.bordLightButton.setStyleSheet(stylesheet[2])
+            #self.bordLightButton.setStyleSheet(stylesheet[2])
             self.logSend = "3"
             self.updateLogConsole()
         else:
             self.arduino.write("4".encode("utf-8"))
-            self.bordLightButton.setStyleSheet("")
+            #self.bordLightButton.setStyleSheet("")
             self.logSend = "4"
             self.updateLogConsole()
         if self.starbordLightButton.isChecked():
             lightsState[2] = 1
             self.arduino.write("5".encode("utf-8"))
-            self.starbordLightButton.setStyleSheet(stylesheet[2])
+            #self.starbordLightButton.setStyleSheet(stylesheet[2])
             self.logSend = "5"
             self.updateLogConsole()
         else:
             self.arduino.write("6".encode("utf-8"))
-            self.starbordLightButton.setStyleSheet("")
+            #self.starbordLightButton.setStyleSheet("")
             self.logSend = "6"
             self.updateLogConsole()
         if self.sternLightButton.isChecked():
             lightsState[3] = 1
             self.arduino.write("7".encode("utf-8"))
-            self.sternLightButton.setStyleSheet(stylesheet[2])
+            #self.sternLightButton.setStyleSheet(stylesheet[2])
             self.logSend = "7"
             self.updateLogConsole()
         else:
             self.arduino.write("8".encode("utf-8"))
-            self.sternLightButton.setStyleSheet("")
+            #self.sternLightButton.setStyleSheet("")
             self.logSend = "8"
             self.updateLogConsole()
         if not 0 in lightsState:
