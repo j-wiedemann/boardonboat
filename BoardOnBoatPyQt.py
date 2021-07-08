@@ -433,6 +433,7 @@ class Dashboard(QObject):
         else:
             self.bowLightButton.setStyleSheet(stylesheet[1])
             self.bowLightButton.setChecked(False)
+            self.arduino.write("2".encode("utf-8"))
 
         if self.alarms["portLight"] == False:
             self.bordLightButton.setStyleSheet(stylesheet[3])
