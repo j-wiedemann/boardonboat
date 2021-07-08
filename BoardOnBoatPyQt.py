@@ -95,11 +95,11 @@ class Dashboard(QObject):
         self.bordLightButton = self.window.findChild(QPushButton, "pushButton_Bord")
         self.bordLightButton.clicked.connect(self.ligthsButtonsClicked)
 
-        ## Starbord light
-        self.starbordLightButton = self.window.findChild(
-            QPushButton, "pushButton_Starbord"
+        ## starboard light
+        self.starboardLightButton = self.window.findChild(
+            QPushButton, "pushButton_starboard"
         )
-        self.starbordLightButton.clicked.connect(self.ligthsButtonsClicked)
+        self.starboardLightButton.clicked.connect(self.ligthsButtonsClicked)
 
         ## Stern light
         self.sternLightButton = self.window.findChild(QPushButton, "pushButton_Stern")
@@ -125,7 +125,7 @@ class Dashboard(QObject):
         self.alarms["lowBattery"] = False
         self.alarms["bowLight"] = False
         self.alarms["portLight"] = False
-        self.alarms["starbordLight"] = False
+        self.alarms["starboardLight"] = False
         self.alarms["sternLight"] = False
 
         # value list
@@ -282,9 +282,9 @@ class Dashboard(QObject):
                     self.alarms["portLight"] = True
             if alarm == "STAR":
                 if state == 0:
-                    self.alarms["starbordLight"] = False
+                    self.alarms["starboardLight"] = False
                 else:
-                    self.alarms["starbordLight"] = True
+                    self.alarms["starboardLight"] = True
             if alarm == "STERN":
                 if state == 0:
                     self.alarms["sternLight"] = False
@@ -324,15 +324,15 @@ class Dashboard(QObject):
             #self.bordLightButton.setStyleSheet("")
             self.logSend = "4"
             self.updateLogConsole()
-        if self.starbordLightButton.isChecked():
+        if self.starboardLightButton.isChecked():
             lightsState[2] = 1
             self.arduino.write("5".encode("utf-8"))
-            #self.starbordLightButton.setStyleSheet(stylesheet[2])
+            #self.starboardLightButton.setStyleSheet(stylesheet[2])
             self.logSend = "5"
             self.updateLogConsole()
         else:
             self.arduino.write("6".encode("utf-8"))
-            #self.starbordLightButton.setStyleSheet("")
+            #self.starboardLightButton.setStyleSheet("")
             self.logSend = "6"
             self.updateLogConsole()
         if self.sternLightButton.isChecked():
@@ -358,13 +358,13 @@ class Dashboard(QObject):
         if self.allLightsButton.isChecked():
             self.bowLightButton.setChecked(True)
             self.bordLightButton.setChecked(True)
-            self.starbordLightButton.setChecked(True)
+            self.starboardLightButton.setChecked(True)
             self.sternLightButton.setChecked(True)
             self.allLightsButton.setText(u"TOUT ÉTEINDRE")
         else:
             self.bowLightButton.setChecked(False)
             self.bordLightButton.setChecked(False)
-            self.starbordLightButton.setChecked(False)
+            self.starboardLightButton.setChecked(False)
             self.sternLightButton.setChecked(False)
             self.allLightsButton.setText(u"TOUT ALLUMER")
         self.ligthsButtonsClicked()
@@ -427,16 +427,17 @@ class Dashboard(QObject):
             self.batteryGauge.setStyleSheet(stylesheet[1])
         if self.alarms["bowLight"] == False:
             self.bowLightButton.setStyleSheet(stylesheet[3])
+            self.bowLightButton.setChecked(False)
         else:
             self.bowLightButton.setStyleSheet(stylesheet[1])
         if self.alarms["portLight"] == False:
             self.bordLightButton.setStyleSheet(stylesheet[3])
         else:
             self.bordLightButton.setStyleSheet(stylesheet[1])
-        if self.alarms["starbordLight"] == False:
-            self.starbordLightButton.setStyleSheet(stylesheet[3])
+        if self.alarms["starboardLight"] == False:
+            self.starboardLightButton.setStyleSheet(stylesheet[3])
         else:
-            self.starbordLightButton.setStyleSheet(stylesheet[1])
+            self.starboardLightButton.setStyleSheet(stylesheet[1])
         if self.alarms["sternLight"] == False:
             self.sternLightButton.setStyleSheet(stylesheet[3])
         else:
@@ -502,11 +503,11 @@ class Dashboard(QObject):
                 self.bordLightButton.setStyleSheet(stylesheet[3])
         elif alarmId == 7:
             if alarmState:
-                self.alarms["starbordLight"] = True
-                self.starbordLightButton.setStyleSheet(stylesheet[1])
+                self.alarms["starboardLight"] = True
+                self.starboardLightButton.setStyleSheet(stylesheet[1])
             else:
-                self.alarms["starbordLight"] = False
-                self.starbordLightButton.setStyleSheet(stylesheet[3])
+                self.alarms["starboardLight"] = False
+                self.starboardLightButton.setStyleSheet(stylesheet[3])
         elif alarmId == 8:
             if alarmState:
                 self.alarms["sternLight"] = True
@@ -557,7 +558,7 @@ class Dashboard(QObject):
                 msg += "<li>FEUX NAVIGATION PROUE</li>"
             if self.alarms["portLight"]:
                 msg += "<li>FEUX NAVIGATION BABORD</li>"
-            if self.alarms["starbordLight"]:
+            if self.alarms["starboardLight"]:
                 msg += "<li>FEUX NAVIGATION TRIBORD</li>"
             if self.alarms["sternLight"]:
                 msg += "<li>FEUX NAVIGATION POUPE</li>"
