@@ -97,7 +97,7 @@ class Dashboard(QObject):
 
         ## starboard light
         self.starboardLightButton = self.window.findChild(
-            QPushButton, "pushButton_starbord"
+            QPushButton, "pushButton_Starboard"
         )
         self.starboardLightButton.clicked.connect(self.ligthsButtonsClicked)
 

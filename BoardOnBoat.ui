@@ -387,7 +387,7 @@ Alarme</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_Starbord">
+      <widget class="QPushButton" name="pushButton_Starboard">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
          <horstretch>0</horstretch>
