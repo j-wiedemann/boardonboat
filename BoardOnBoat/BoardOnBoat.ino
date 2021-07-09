@@ -38,7 +38,7 @@ unsigned long _lastCheckPressure = 0;
 const unsigned long _periodCheckRudder = 100;
 unsigned long _lastCheckRudder = 0;
 
-const unsigned long _periodCheckLights = 60000;
+const unsigned long _periodCheckLights = 300000;
 unsigned long _lastCheckLights = 0;
 
 const unsigned long _periodCheckVolt = 2000;
@@ -339,7 +339,7 @@ void loop() {
 
     if(millis() - _lastCheckLights >= _periodCheckLights){
         _lastCheckLights+= _periodCheckLights;
-        // lightsCheck();
+        lightsCheck();
     }
 
     if(millis() - _lastCheckVolt >= _periodCheckVolt){
