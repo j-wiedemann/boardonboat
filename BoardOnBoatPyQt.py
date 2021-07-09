@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 import sys
 from datetime import datetime
 import serial
@@ -494,5 +495,7 @@ class Dashboard(QObject):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
-    board = Dashboard("BoardOnBoat.ui")
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    ui_path = os.path.join(dir_path, "BoardOnBoat.ui")
+    board = Dashboard(ui_path)
     sys.exit(app.exec_())

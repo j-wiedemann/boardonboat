@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=BoardOnBoat
+Comment=Board panel for my boat
+Exec=python3 ~/Logiciels/boardonboat/BoardOnBoatPyQt.py
+Icon=/usr/share/pixmaps/python.xpm
+Terminal=false
+Type=Application
+Categories=Utility;Application;
+StartupNotify=true
