@@ -106,7 +106,7 @@ int readRPM(){
 // Temperature control
 //int Vo;
 //temperature of the engine coude d'echappement en degre celsius
-float Vo
+float Vo;
 float _temp;
 float R1 = 1000;
 float logR2, R2, T;
