@@ -50,7 +50,7 @@ unsigned long _lastCheckVolt = 0;
 // void alarmControl();
 int readRPM();
 float readTemperature();
-int readPressure();
+float readPressure();
 void lightsCheck();
 float readRudderAngle();
 float readVoltage();
@@ -108,33 +108,14 @@ int readRPM(){
 //temperature of the engine coude d'echappement en degre celsius
 float Vo;
 float _temp;
-float R1 = 1000;
-float logR2, R2, T;
-float c1 = 0.003194888, c2 = 0.000257961;
+float coef = -22.068965517241;
+float k = 106.89655172414;
+float T;
 float readTemperature() {
     // Temperature
     Vo = analogRead(ThermistorPin) * 5.0 / 1024;
-    R2 = Vo * R1 / (5.00 - Vo);
-    logR2 = log(R2);
-    T = (1.0 / (c1 + c2*logR2));
-    T = T - 273.15;
+    T = coef * Vo + k
     return (float)(T);
-}
-
-// Pressure control
-//oil pressure of the engine
-int _pressure = 0;
-const float  Offset = 0.397 ;
-float pressureV, pressureP, pressureB;
-int readPressure() {
-    pressureV = analogRead(PressurePin) * 5.00 / 1024;     //Sensor output voltage
-    pressureP = (3.0 * (pressureV - Offset)) * 1000000.0;             //Calculate water pressure
-    pressureB = pressureP/10e5;             //Calculate water pressure
-    //pressureP = analogRead(PressurePin);
-
-    //Serial.println(pressureB);
-    _pressure = pressureB;
-    return _pressure;
 }
 
 // Rudder angle Control
@@ -149,7 +130,31 @@ float _volt = 0;
 float readVoltage(){
   float valeur_capteur = analogRead(VoltagePin);
   // Serial.println(valeur_capteur);
-  return (float)0.029296875 * valeur_capteur;
+  _volt = 0.029296875 * valeur_capteur;
+  //return (float)0.029296875 * valeur_capteur;
+  return _volt;
+}
+
+// Pressure control
+//oil pressure of the engine
+float _pressure = 0;
+const float  Offset = 0.397 ;
+float pressureV, pressureP, pressureB;
+float readPressure() {
+    pressureV = analogRead(PressurePin) * 5.00 / 1024;     //Sensor output voltage
+    Serial.println(pressureV);
+    pressureP = (3.0 * (pressureV - Offset)) * 1000000.0;             //Calculate water pressure
+    pressureB = pressureP/10e5;             //Calculate water pressure
+    //Serial.println(pressureB);
+    _pressure = pressureB;
+    _volt = readVoltage();
+    if (_volt > 27) {
+        _pressure = 1.5;
+    }
+    else {
+      _pressure = 0.0;
+    }
+    return _pressure;
 }
 
 //  Lights check control

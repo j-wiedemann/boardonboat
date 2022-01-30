@@ -131,9 +131,9 @@ class Dashboard(QObject):
         self.alarms["sternLight"] = False
 
         # value list
-        self.temperatures = [0] * 15
-        self.pressures = [0] * 15
-        self.voltages = [0] * 1
+        self.temperatures = [40] * 1
+        self.pressures = [1.5] * 1
+        self.voltages = [28] * 1
 
         # Serial connecxion to  arduino
         self.portDevice = u"NON CONNECTÉ"
@@ -211,10 +211,16 @@ class Dashboard(QObject):
         print_arduino_log(data)
         # TEMP
         if data[0] == "T" and len(data) > 1:
-            self.temperatures.append(int(float(data[1:])))
+            #self.temperatures.append(int(float(data[1:])))
+            self.temperatures.append(float(data[1:]))
             self.temperatures.pop(0)
             temp = int(mean(self.temperatures))
-            txt = gaugeHtml.format(gaugeName=u"Température", value=temp, unity=u" °C")
+            if temp < 40:
+                temp_txt = u"< 40"
+            else:
+                temp_txt = str(temp)
+            #temp = float(mean(self.temperatures))
+            txt = gaugeHtml.format(gaugeName=u"Température", value=temp_txt, unity=u" °C")
             self.temperatureGauge.setHtml(txt)
             if temp > 100:
                 self.alarms["temp"] = True
@@ -228,16 +234,26 @@ class Dashboard(QObject):
             pressure = round(mean(self.pressures), 2)
             txt = gaugeHtml.format(gaugeName=u"Pression", value=pressure, unity=u" BAR")
             self.pressureGauge.setText(txt)
-            if pressure < 2.4:
-                self.alarms["pressure"] = True
+            if round(mean(self.voltages), 1) > 27.0:
+                if pressure < 0.5:
+                    self.alarms["pressure"] = True
+                elif pressure > 3.5:
+                    self.alarms["pressure"] = True
+                else:
+                    self.alarms["pressure"] = False
             else:
                 self.alarms["pressure"] = False
 
         
         # RPM
         elif data[0] == "R" and len(data) > 1:
+            value = float(data[1:])
+            if value < 100:
+                value_txt = u"ERROR"
+            else:
+                value_txt = str(value)
             txt = gaugeHtml.format(
-                gaugeName=u"Vitesse de rotation", value=data[1:], unity=u" RPM"
+                gaugeName=u"Vitesse de rotation", value=value_txt, unity=u" RPM"
             )
             self.rpmGauge.setText(txt)
         
